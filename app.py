@@ -40,11 +40,40 @@ books = [
 
 
 
+@app.route('/api/create_books', methods=['POST'])
+def create_books():
+    if not request.is_json:
+        
+         return jsonify(
+            {
+                "success": False,
+                "error": "Content-type must be application/json"
+            }
+        ), HTTPStatus.BAD_REQUEST
 
+    data = request.get_json()
 
+    required_fields = ['Title', 'author', 'year']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({
+                "success": False,
+                "error": f"Missing required field: {field}"
+            }), HTTPStatus.BAD_REQUEST
 
+    new_book = {
+        'id': max([book['id'] for book in books], default=0) + 1,
+        'Title' : data['Title'],
+        'author': data['author'],
+        'year': data['year']
+    }
 
+    books.append(new_book)
 
+    return jsonify({
+        "success": True,
+        "data": new_book
+    }),HTTPStatus.CREATED
 
 
 
