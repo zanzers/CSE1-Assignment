@@ -13,7 +13,7 @@ class Book(db.Model):
     
     @classmethod
     def get_book_by_id(cls, book_id):
-        return cls.query.get(book_id)
+        return db.session.get(cls, book_id)
     
     @classmethod
     def create_book(cls, title, author, year):
@@ -24,7 +24,7 @@ class Book(db.Model):
     
     @classmethod
     def update_book(cls, book_id, title, author, year):
-        book = cls.query.get(book_id)
+        book = db.session.get(cls,book_id)
 
         if book:
             book.Title = title
@@ -35,7 +35,7 @@ class Book(db.Model):
         
     @classmethod
     def delete_book(cls, book_id):
-        book = cls.query.get(book_id)
+        book = db.session.get(cls,book_id)
         if book:
             db.session.delete(book)
             db.session.commit()

@@ -1,16 +1,15 @@
 from flask import Flask, jsonify, request
 from http import HTTPStatus
 from function import *
-from Books_model import *
+from books_model import *
 
 
 
 app = Flask(__name__)
 
-# app.py
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'  # SQLite file named books.db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+app.config['TESTING'] = True
 
 db.init_app(app)
 with app.app_context():
@@ -19,28 +18,22 @@ with app.app_context():
 
 @app.route('/api/home', methods=['GET'])
 def view():
+ 
+    books = Book.query.all()
 
-    try:
-        books = Book.query.all()
-
-        books_list = [
-            {
-                "id": book.id,
-                "Title": book.Title,
-                "author": book.author,
-                "year": book.year
-             }
-             for book in books
-        ]
-        return jsonify({
-            "success": True,
-            "data": books_list
-        }), HTTPStatus.OK
-    except Exception as e:
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), HTTPStatus.BAD_REQUEST
+    books_list = [
+        {
+            "id": book.id,
+            "Title": book.Title,
+            "author": book.author,
+            "year": book.year
+        }
+        for book in books
+    ]
+    return jsonify({
+        "success": True,
+        "data": books_list
+    }), HTTPStatus.OK
 
 @app.route('/api/create_books', methods=['POST'])
 def create_books():
@@ -63,6 +56,8 @@ def create_books():
                 "success": False,
                 "error": f"Missing required field: {field}"
             }), HTTPStatus.BAD_REQUEST
+
+
 
     new_book = Book.create_book(data['Title'], data['author'], data['year'])
 
@@ -131,8 +126,13 @@ def update_books(book_id):
     print(f"After Update: {book}")
 
     return jsonify({
-        "success": True,
-        "data": f"Book with id {book_id} updated successfully"
+            "success": True,
+            "data": {
+            "id": updated_book.id,
+            "Title": updated_book.Title,
+            "author": updated_book.author,
+            "year": updated_book.year
+            }
     }),HTTPStatus.OK
 
 
@@ -147,10 +147,6 @@ def delete_books(book_id):
             "error": "Book not found"
         }), HTTPStatus.NOT_FOUND
     
-    print("Books before deletion:", books)
-
-
-    print("Books after deletion:", books)
 
     return jsonify({
         "success": True,
@@ -158,5 +154,9 @@ def delete_books(book_id):
     }), HTTPStatus.NO_CONTENT
 
 
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True)  # pragma: no cover
+
+#  pytest --cov=app test_client.py
