@@ -59,7 +59,41 @@ def get_book(book_id):
         "data": book
     }), HTTPStatus.OK
 
+@app.route('/api/update_books/<int:book_id>', methods=['PUT'])
+def update_books(book_id):
+    
+    book = find_book(book_id)
 
+    if book is None:
+        return jsonify({
+            "success": False,
+            "error" : "Book not Found"
+        }), HTTPStatus.NOT_FOUND
+
+    print(f"Before Update: {book}")
+    data = request.get_json()
+
+    required_fields = ['Title', 'author', 'year']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({
+                "success": False,
+                "error": f"Missing required field: {field}"
+            }), HTTPStatus.BAD_REQUEST
+        
+    book['Title'] = data['Title']
+    book['author'] = data['author']
+    book['year'] = data['year']
+
+    print(f"After Update: {book}")
+
+    return jsonify({
+        "success": True,
+        "data": book
+    }),HTTPStatus.OK
+
+def delete_books(book_id):
+    pass
 
 
 
