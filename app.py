@@ -1,41 +1,9 @@
 from flask import Flask, jsonify, request
 from http import HTTPStatus
+from function import *
 
 app = Flask(__name__)
 
-
-books = [
-    {
-        'id': 1,
-        'Title': 'To Kill a Mockingbird',
-        'author': 'Harper Lee',
-        'year': 1960,
-    },
-    {
-        'id': 2,
-        'Title': '1984',
-        'author': 'George Orwell',
-        'year': 1949,
-    },
-    {
-        'id': 3,
-        'Title': 'Pride and Prejudice',
-        'author': 'Jane Austen',
-        'year': 1813,
-    },
-    {
-        'id': 4,
-        'Title': 'The Great Gatsby',
-        'author': 'F. Scott Fitzgerald',
-        'year': 1925,
-    },
-    {
-        'id': 5,
-        'Title': 'Moby-Dick',
-        'author': 'Herman Melville',
-        'year': 1851,
-    }
-]
 
 
 
@@ -75,8 +43,21 @@ def create_books():
         "data": new_book
     }),HTTPStatus.CREATED
 
+@app.route('/api/get_books/<int:book_id>', methods=['GET'])
+def get_book(book_id):
+    
+    book = find_book(book_id)
 
+    if book is None:
+        return jsonify({
+            "success": False,
+            "error": "Book does not exist"
+        }), HTTPStatus.NOT_FOUND
 
+    return jsonify({
+        "success": True,
+        "data": book
+    }), HTTPStatus.OK
 
 
 
